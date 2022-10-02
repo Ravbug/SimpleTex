@@ -1,4 +1,16 @@
 cmake_minimum_required(VERSION 3.20)
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${DEPS_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<CONFIGURATION>)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<CONFIGURATION>)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+
+# LTO on release and profile
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE CACHE INTERNAL "")
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE CACHE INTERNAL "")
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL TRUE CACHE INTERNAL "")
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_PROFILE TRUE CACHE INTERNAL "")
 
 project("SimpleTex")
 
@@ -7,15 +19,17 @@ list(APPEND CMAKE_PREFIX_PATH "~/Qt/6.4.0/macos")
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui PrintSupport Pdf PdfWidgets)
 qt_standard_project_setup()
 
-add_subdirectory(deps/QScintilla-cmake)
-add_subdirectory(deps/pdftex-cmake)
+add_subdirectory(deps/QScintilla-cmake EXCLUDE_FROM_ALL)
+add_subdirectory(deps/pdftexlite-cmake EXCLUDE_FROM_ALL)
 
 file(GLOB SOURCES src/*.cpp src/*.hpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-target_link_libraries(${PROJECT_NAME} PUBLIC QScintilla Qt6::Pdf Qt6::PdfWidgets)
+target_link_libraries(${PROJECT_NAME} PUBLIC QScintilla Qt6::Pdf Qt6::PdfWidgets pdftex)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON
+    XCODE_GENERATE_SCHEME ON
 )
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
