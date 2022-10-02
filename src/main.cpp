@@ -6,6 +6,8 @@
 #include <QPdfView>
 #include <Qsci/qsciscintilla.h>
 
+extern "C" void init_pdftex_lib();
+
 class MainWindow : public QMainWindow{
 public:
     MainWindow(QWidget* parent = nullptr) : QMainWindow(parent){
@@ -32,6 +34,8 @@ int main(int argc, char** argv){
         
     auto win = std::make_unique<MainWindow>();
     win->show();
-
+    
+    init_pdftex_lib();
+    
     return a.exec();
 }

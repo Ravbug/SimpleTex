@@ -1,6 +1,8 @@
 project(pdftexlite-cmake)
 
 add_subdirectory(libpng-cmake)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 add_library(xpdf 
     PdfTeXLite/xpdf/FoFiBase.cc 
@@ -63,14 +65,20 @@ add_library(xpdf
 )
 target_include_directories(xpdf PUBLIC PdfTeXLite/xpdf/ PdfTeXLite/)
 
+file(GLOB_RECURSE pdftex_headers PdfTeXLite/pdftexdir/*.h)
 add_library(pdftex
     PdfTeXLite/pdftexdir/avl.c PdfTeXLite/pdftexdir/avlstuff.c 
     PdfTeXLite/pdftexdir/mapfile.c PdfTeXLite/pdftexdir/utils.c PdfTeXLite/pdftexdir/subfont.c PdfTeXLite/pdftexdir/tounicode.c 
     PdfTeXLite/pdftexdir/vfpacket.c PdfTeXLite/pdftexdir/writezip.c PdfTeXLite/pdftexdir/writet3.c PdfTeXLite/pdftexdir/writettf.c
     PdfTeXLite/pdftexdir/writefont.c PdfTeXLite/pdftexdir/writeimg.c PdfTeXLite/pdftexdir/writejpg.c PdfTeXLite/pdftexdir/writepng.c 
     PdfTeXLite/pdftexdir/writeenc.c PdfTeXLite/pdftexdir/writet1.c PdfTeXLite/pdftexdir/pkin.c PdfTeXLite/pdftexdir/epdf.c PdfTeXLite/pdftexdir/writejbig2.c
+
+	PdfTeXLite/tex/pdftex0.c PdfTeXLite/tex/pdftexini.c PdfTeXLite/tex/pdftex-pool.c PdfTeXLite/pdftexmain.c 
+	PdfTeXLite/md5.c PdfTeXLite/memory.c PdfTeXLite/file.c PdfTeXLite/kpseemu-c.c 
+
+    ${pdftex_headers}
 )
 target_include_directories(pdftex PUBLIC PdfTeXLite/pdftexdir/ PdfTeXLite/tex/ PdfTeXLite/)
 target_compile_definitions(pdftex PRIVATE -DDISABLE_OUTLINE=1 -DPDF_PARSER_ONLY=1 )
-target_include_directories(pdftex PRIVATE "libpng-cmake/libpng/" "${CMAKE_BINARY_DIR}/deps/pdftexlite-cmake/libpng-cmake/libpng" )
-target_link_libraries(pdftex PRIVATE png_static)
+target_include_directories(pdftex PUBLIC "libpng-cmake/libpng/" "${CMAKE_BINARY_DIR}/deps/pdftexlite-cmake/libpng-cmake/libpng" )
+target_link_libraries(pdftex PRIVATE png_static xpdf)

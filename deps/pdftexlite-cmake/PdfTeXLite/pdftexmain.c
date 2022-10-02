@@ -602,7 +602,7 @@ void uexit(int code)
     exit(code);
 }
 
-int main(int argc, char**argv)
+int pdftexmain(int argc, char**argv)
 {
   
   
