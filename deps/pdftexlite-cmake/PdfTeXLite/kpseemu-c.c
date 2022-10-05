@@ -2,7 +2,12 @@
 #include <pdftexd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#define F_OK 0
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
 
 #include <curl/curl.h>
 

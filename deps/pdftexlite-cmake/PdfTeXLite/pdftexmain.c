@@ -3,10 +3,14 @@
 #include <pdftexd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/time.h>
+#else
+#include <winsock.h>
+#endif
 #include <time.h>
 #include <errno.h>
 #include <md5.h>
@@ -26,10 +30,89 @@ const char *ptexbanner = "PDFTeX Lite";
 const char *DEFAULT_FMT_NAME = " pdflatexlite.fmt";
 const char *DEFAULT_DUMP_NAME = "pdflatexlite";
 string versionstring = " (3.1415926)";
-char bootstrapcmd[64] = {};
+char bootstrapcmd[64] = {
+#if _WIN32
+    0
+#endif
+};
 int exit_code;
 static char *cstrbuf = NULL;
 static int allocsize;
+
+#ifdef _WIN32
+#include <string.h>
+#include <stdio.h>
+
+int     opterr = 1,             /* if error message should be printed */
+optind = 1,             /* index into parent argv vector */
+optopt,                 /* character checked for validity */
+optreset;               /* reset getopt */
+char* optarg;                /* argument associated with option */
+
+#define BADCH   (int)'?'
+#define BADARG  (int)':'
+#define EMSG    ""
+
+/*
+ * getopt --
+ *      Parse argc/argv argument vector.
+ */
+int getopt(int nargc, char* const nargv[], const char* ostr)
+{
+    static char* place = EMSG;              /* option letter processing */
+    const char* oli;                              /* option letter list index */
+
+    if (optreset || !*place) {              /* update scanning pointer */
+        optreset = 0;
+        if (optind >= nargc || *(place = nargv[optind]) != '-') {
+            place = EMSG;
+            return (-1);
+        }
+        if (place[1] && *++place == '-') {      /* found "--" */
+            ++optind;
+            place = EMSG;
+            return (-1);
+        }
+    }                                       /* option letter okay? */
+    if ((optopt = (int)*place++) == (int)':' ||
+        !(oli = strchr(ostr, optopt))) {
+        /*
+        * if the user didn't specify '-' as an option,
+        * assume it means -1.
+        */
+        if (optopt == (int)'-')
+            return (-1);
+        if (!*place)
+            ++optind;
+        if (opterr && *ostr != ':')
+            (void)printf("illegal option -- %c\n", optopt);
+        return (BADCH);
+    }
+    if (*++oli != ':') {                    /* don't need argument */
+        optarg = NULL;
+        if (!*place)
+            ++optind;
+    }
+    else {                                  /* need an argument */
+        if (*place)                     /* no white space */
+            optarg = place;
+        else if (nargc <= ++optind) {   /* no arg */
+            place = EMSG;
+            if (*ostr == ':')
+                return (BADARG);
+            if (opterr)
+                (void)printf("option requires an argument -- %c\n", optopt);
+            return (BADCH);
+        }
+        else                            /* white space */
+            optarg = nargv[optind];
+        place = EMSG;
+        ++optind;
+    }
+    return (optopt);                        /* dump back option letter */
+}
+
+#endif
 
 string
 concat3 (const_string s1,  const_string s2,  const_string s3)
@@ -129,7 +212,28 @@ topenin (void)
 
    
 }
+#ifdef _WIN32
+int gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+    // until 00:00:00 January 1, 1970 
+    static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
 
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    uint64_t    time;
+
+    GetSystemTime(&system_time);
+    SystemTimeToFileTime(&system_time, &file_time);
+    time = ((uint64_t)file_time.dwLowDateTime);
+    time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+    return 0;
+}
+#endif
 
 void
 get_seconds_and_micros (integer *seconds,  integer *micros)

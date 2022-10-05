@@ -7,10 +7,16 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <sys/types.h>
+
 
 //Typedef
 typedef int integer;
+#ifndef _WIN32
 typedef int boolean;
+#else
+typedef unsigned char boolean;
+#endif
 typedef long longinteger;
 typedef const char* constcstring;
 typedef char* cstring;

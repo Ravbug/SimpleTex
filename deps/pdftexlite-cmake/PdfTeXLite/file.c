@@ -270,11 +270,20 @@ xftell (FILE *f,  const_string filename)
     return where;
 }
 
+#include <aconf.h>
 
 long
 xftello (FILE *f,  const_string filename)
 {
-    long where = ftello (f);
+    
+    long where =
+#if HAVE_FSEEKO
+        ftello(f);
+#elif HAVE_FSEEK64
+        ftell64(f);
+#elif HAVE_FSEEKI64
+        _ftelli64(f);
+#endif
 
     if (where < 0)
     {
@@ -284,6 +293,10 @@ xftello (FILE *f,  const_string filename)
 
     return where;
 }
+
+#ifdef _WIN32
+#define fseeko _fseeki64
+#endif
 
 void
 xfseeko (FILE *f,  off_t offset,  int wherefrom,  const_string filename)

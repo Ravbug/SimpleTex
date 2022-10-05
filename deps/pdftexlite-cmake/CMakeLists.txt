@@ -72,6 +72,9 @@ add_library(pdftex
     PdfTeXLite/pdftexdir/vfpacket.c PdfTeXLite/pdftexdir/writezip.c PdfTeXLite/pdftexdir/writet3.c PdfTeXLite/pdftexdir/writettf.c
     PdfTeXLite/pdftexdir/writefont.c PdfTeXLite/pdftexdir/writeimg.c PdfTeXLite/pdftexdir/writejpg.c PdfTeXLite/pdftexdir/writepng.c 
     PdfTeXLite/pdftexdir/writeenc.c PdfTeXLite/pdftexdir/writet1.c PdfTeXLite/pdftexdir/pkin.c PdfTeXLite/pdftexdir/epdf.c PdfTeXLite/pdftexdir/writejbig2.c
+	
+	#PdfTeXLite/pdftexdir/regex/regcomp.c PdfTeXLite/pdftexdir/regex/regex_internal.c PdfTeXLite/pdftexdir/regex/regexec.c
+	PdfTeXLite/pdftexdir/regex/regex.c
 
 	PdfTeXLite/tex/pdftex0.c PdfTeXLite/tex/pdftexini.c PdfTeXLite/tex/pdftex-pool.c PdfTeXLite/pdftexmain.c 
 	PdfTeXLite/md5.c PdfTeXLite/memory.c PdfTeXLite/file.c PdfTeXLite/kpseemu-c.c 
@@ -80,5 +83,16 @@ add_library(pdftex
 )
 target_include_directories(pdftex PUBLIC PdfTeXLite/pdftexdir/ PdfTeXLite/tex/ PdfTeXLite/)
 target_compile_definitions(pdftex PRIVATE -DDISABLE_OUTLINE=1 -DPDF_PARSER_ONLY=1 )
-target_include_directories(pdftex PUBLIC "libpng-cmake/libpng/" "${CMAKE_BINARY_DIR}/deps/pdftexlite-cmake/libpng-cmake/libpng" )
-target_link_libraries(pdftex PRIVATE png_static xpdf)
+target_include_directories(pdftex PUBLIC 
+	"libpng-cmake/libpng/" 
+	#"PdfTeXLite/pdftexdir/regex"
+	"${CMAKE_BINARY_DIR}/deps/pdftexlite-cmake/libpng-cmake/libpng"
+	"${CMAKE_BINARY_DIR}/deps/pdftexlite-cmake/libpng-cmake/zlib"
+	libpng-cmake/zlib
+)
+target_link_libraries(pdftex PRIVATE
+	png_static 
+	xpdf 
+	CURL::libcurl
+	zlibstatic
+)

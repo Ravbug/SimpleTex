@@ -19,7 +19,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <w2c/config.h>		/* for large file support */
 #include <sys/types.h>
-#include <regex.h>
+#include <regex/regex.h>
 
 #include <string.h>
 #include <time.h>

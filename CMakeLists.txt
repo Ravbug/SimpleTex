@@ -12,16 +12,17 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE CACHE INTERNAL "")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL TRUE CACHE INTERNAL "")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_PROFILE TRUE CACHE INTERNAL "")
 
+if(MSVC)
+    add_definitions("/MP")
+endif()
+
 project("SimpleTex")
 
 list(APPEND CMAKE_PREFIX_PATH "~/Qt/6.4.0/macos")
+list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.4.0/msvc2019_64")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui PrintSupport Pdf PdfWidgets)
 qt_standard_project_setup()
-
-# scintilla and pdftex
-add_subdirectory(deps/QScintilla-cmake EXCLUDE_FROM_ALL)
-add_subdirectory(deps/pdftexlite-cmake EXCLUDE_FROM_ALL)
 
 # libcurl
 if (MSVC)
@@ -64,6 +65,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     pdftex 
     CURL::libcurl
 )
+
+# scintilla and pdftex
+add_subdirectory(deps/QScintilla-cmake EXCLUDE_FROM_ALL)
+add_subdirectory(deps/pdftexlite-cmake EXCLUDE_FROM_ALL)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     WIN32_EXECUTABLE ON

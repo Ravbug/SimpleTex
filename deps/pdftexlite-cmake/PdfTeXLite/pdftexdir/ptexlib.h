@@ -23,16 +23,10 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <ctype.h>
 #include <limits.h> 
 
-
 #ifdef _WIN32
-#undef fopen
-#undef xfopen
-#undef fputs
-#undef putc
-#define fopen fsyscp_fopen
-#define xfopen fsyscp_xfopen
-#define fputs win32_fputs
-#define putc win32_putc
+#include <sys/types.h>
+#define M_PI 3.1415926
+#define strcasecmp _stricmp
 #endif
 
 /* WEB2C macros and prototypes */

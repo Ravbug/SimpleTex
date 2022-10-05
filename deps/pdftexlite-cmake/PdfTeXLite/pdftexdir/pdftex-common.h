@@ -23,6 +23,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef PDFTEX_COMMON_H
 #  define PDFTEX_COMMON_H
+#define __attribute__(x)
 
 /* Declarations generated from pdftex.web are included in ptexlib.h via pdftexd.h,
    we repeat them here for pdftoepdf.cc and as consistency check.
