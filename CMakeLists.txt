@@ -76,3 +76,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     XCODE_GENERATE_SCHEME ON
 )
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    INSTALL(CODE 
+        "include(BundleUtilities)
+        fixup_bundle(\"${CMAKE_BINARY_DIR}/$<CONFIGURATION>/${PROJECT_NAME}.app\" \"\" \"\")
+        " 
+        COMPONENT Runtime
+    )
+endif()
